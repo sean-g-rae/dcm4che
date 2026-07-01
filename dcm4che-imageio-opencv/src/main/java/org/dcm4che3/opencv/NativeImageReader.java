@@ -271,7 +271,7 @@ public class NativeImageReader extends ImageReader implements Closeable {
             try {
             positions = new MatOfDouble(ExtendSegmentedInputImageStream.getDoubleArray(seg.getSegPosition()));
             lengths = new MatOfDouble(ExtendSegmentedInputImageStream.getDoubleArray(seg.getSegLength()));
-            return ImageCV.toImageCV(Imgcodecs.dicomJpgFileRead(((FileStreamSegment) seg).getFilePath(), positions,
+            return ImageCV.fromMat(Imgcodecs.dicomJpgFileRead(((FileStreamSegment) seg).getFilePath(), positions,
                 lengths, dcmFlags, Imgcodecs.IMREAD_UNCHANGED));
             } finally {
                 closeMat(positions);
@@ -283,7 +283,7 @@ public class NativeImageReader extends ImageReader implements Closeable {
                 ByteBuffer b = ((MemoryStreamSegment) seg).getCache();
                 buf = new Mat(1, b.limit(), CvType.CV_8UC1);
                 buf.put(0, 0, b.array());
-                return ImageCV.toImageCV(Imgcodecs.dicomJpgMatRead(buf, dcmFlags, Imgcodecs.IMREAD_UNCHANGED));
+                return ImageCV.fromMat(Imgcodecs.dicomJpgMatRead(buf, dcmFlags, Imgcodecs.IMREAD_UNCHANGED));
             } finally {
                 closeMat(buf);
             }
