@@ -14,13 +14,16 @@ specified in [DICOM PS 3.15](http://dicom.nema.org/medical/dicom/current/output/
 
 dcm4che uses a native library ([weasis-core-img](https://github.com/nroduit/weasis-core-img), a JNI build of [OpenCV](https://opencv.org/)) for the compression and decompression of images. Here is the list of supported systems and architectures:
 
-| System  | Architecture | Package        | Requirement          |
-|:--------|:-------------|:---------------|:---------------------|
-| Linux   | x86 64-bit   | linux-x86-64   | GLIBC_2.17           |
-| Linux   | ARM 64-bit   | linux-aarch64  | GLIBC_2.27           |
-| Windows | x86 64-bit   | windows-x86-64 | Windows 10 or higher |
-| Mac OS  | x86 64-bit   | macosx-x86-64  | Mac OS 11 or higher  |
-| Mac OS  | ARM 64-bit   | macosx-aarch64 | Mac OS 12 or higher  |
+| System  | Architecture | Package        | Requirement   |
+|:--------|:-------------|:---------------|:--------------|
+| Linux   | x86 64-bit   | linux-x86-64   | GLIBC_2.17+   |
+| Linux   | ARM 64-bit   | linux-aarch64  | GLIBC_2.27+   |
+| Windows | x86 64-bit   | windows-x86-64 | Windows 10+   |
+| Mac OS  | x86 64-bit   | macosx-x86-64  | Mac OS 10.13+ |
+| Mac OS  | ARM 64-bit   | macosx-aarch64 | Mac OS 10.13+ |
+
+The Linux libraries are dynamically linked against glibc, so they require a glibc-based distribution at the minimum version listed above and do not run on musl-based systems such as Alpine without a glibc compatibility layer. The Windows library uses a static C++ runtime and needs no Visual C++ redistributable.     
+The native library is CPU-only (no GPU/OpenCL path) with SIMD runtime dispatch (AVX2/AVX-512 on x86-64, NEON on aarch64). 32-bit architectures (`linux-armv7a`, `windows-x86`) are no longer shipped.
 
 Build
 -----
