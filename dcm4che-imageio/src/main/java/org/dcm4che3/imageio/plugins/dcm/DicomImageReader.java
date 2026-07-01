@@ -579,6 +579,7 @@ public class DicomImageReader extends ImageReader implements Closeable {
             iisOfFrame = new SegmentedInputImageStream(
                     iis, pixelDataFragments, frames==1 ? -1 : frameIndex);
             ((SegmentedInputImageStream) iisOfFrame).setImageDescriptor(imageDescriptor);
+            ((SegmentedInputImageStream) iisOfFrame).setFile(pixelDataFile);
         }
         return patchJpegLS != null
                 ? new PatchJPEGLSImageInputStream(iisOfFrame, patchJpegLS)

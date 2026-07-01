@@ -291,6 +291,7 @@ public class Decompressor {
         SegmentedInputImageStream siis =
                 new SegmentedInputImageStream(iis, pixeldataFragments, index);
         siis.setImageDescriptor(imageDescriptor);
+        siis.setFile(file);
         decompressor.setInput(patchJpegLS != null
                 ? new PatchJPEGLSImageInputStream(siis, patchJpegLS)
                 : siis);

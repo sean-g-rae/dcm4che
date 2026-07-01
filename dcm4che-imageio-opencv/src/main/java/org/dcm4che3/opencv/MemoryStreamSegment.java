@@ -41,22 +41,15 @@
 
 package org.dcm4che3.opencv;
 
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
-import javax.imageio.stream.MemoryCacheImageInputStream;
-
 import org.dcm4che3.imageio.codec.ImageDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Nicolas Roduit
  * @since Mar 2018
  */
 class MemoryStreamSegment extends StreamSegment {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MemoryStreamSegment.class);
 
     private final ByteBuffer cache;
 
@@ -67,20 +60,5 @@ class MemoryStreamSegment extends StreamSegment {
 
     public ByteBuffer getCache() {
         return cache;
-    }
-
-    public static ByteArrayInputStream getByteArrayInputStream(MemoryCacheImageInputStream inputStream) {
-        if (inputStream != null) {
-            try {
-                Field fid = MemoryCacheImageInputStream.class.getDeclaredField("stream");
-                if (fid != null) {
-                    fid.setAccessible(true);
-                    return (ByteArrayInputStream) fid.get(inputStream);
-                }
-            } catch (Exception e) {
-                LOGGER.error("Cannot get inputstream", e);
-            }
-        }
-        return null;
     }
 }

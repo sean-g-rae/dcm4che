@@ -54,7 +54,7 @@
 
   <properties>
     <!-- Tests require the OpenCV native library and can only be run on Linux, Windows and macOS-->
-    <argLine>-Djava.library.path=${project.build.directory}/lib/${os-name}-${cpu-name} -XX:+IgnoreUnrecognizedVMOptions --add-opens=java.desktop/javax.imageio.stream=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED</argLine>
+    <argLine>-Djava.library.path=${project.build.directory}/lib/${os-name}-${cpu-name}</argLine>
   </properties>
   <profiles>
     <profile>

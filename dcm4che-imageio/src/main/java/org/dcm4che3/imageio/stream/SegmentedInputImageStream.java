@@ -38,6 +38,7 @@
 
 package org.dcm4che3.imageio.stream;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -75,6 +76,7 @@ public class SegmentedInputImageStream extends ImageInputStreamImpl {
     private final List<Object> fragments;
     private byte[] byteFrag;
     private ImageDescriptor imageDescriptor;
+    private File file;
 
     /**
      * Create a segmented input stream, that updates the bulk data entries as required, frameIndex
@@ -111,6 +113,15 @@ public class SegmentedInputImageStream extends ImageInputStreamImpl {
 
     public void setImageDescriptor(ImageDescriptor imageDescriptor) {
         this.imageDescriptor = imageDescriptor;
+    }
+
+    /** The file backing the fragments, or {@code null} when the pixel data is not read from a file. */
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
     }
 
     /** Just read from the raw data segment - this gets converted to an in-memory fragments object,
