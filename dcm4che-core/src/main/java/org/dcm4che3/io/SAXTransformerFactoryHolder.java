@@ -1,4 +1,4 @@
-/* ***** BEGIN LICENSE BLOCK *****
+/*
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -15,8 +15,8 @@
  * Java(TM), hosted at https://github.com/dcm4che.
  *
  * The Initial Developer of the Original Code is
- * Agfa Healthcare.
- * Portions created by the Initial Developer are Copyright (C) 2011
+ * J4Care.
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -33,51 +33,38 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
+ */
 
 package org.dcm4che3.io;
 
-import java.io.IOException;
-import java.io.InputStream;
+import org.dcm4che3.util.StringUtils;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.dcm4che3.data.Attributes;
-import org.xml.sax.SAXException;
+import javax.xml.XMLConstants;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
+ * @since Jun 2026
  */
-public class SAXReader {
-
-    public static Attributes parse(String uri, Attributes attrs)
-            throws ParserConfigurationException, SAXException, IOException {
-        if (attrs == null)
-            attrs = new Attributes();
-        SAXParser parser = SAXParserFactoryHolder.factory.newSAXParser();
-        parser.parse(uri, new ContentHandlerAdapter(attrs));
-        return attrs;
+public class SAXTransformerFactoryHolder {
+    public static final SAXTransformerFactory factory;
+    static {
+        factory = (SAXTransformerFactory) TransformerFactory.newInstance();
+        try {
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, !"false".equalsIgnoreCase(
+                    StringUtils.getPropertyOrEnv(
+                            "javax.xml.featureSecureProcessing",
+                            "JAVAX_XML_FEATURE_SECURE_PROCESSING",
+                            null)));
+        } catch (TransformerConfigurationException e) {
+            throw new AssertionError("All implementations are required to support the XMLConstants.FEATURE_SECURE_PROCESSING feature", e);
+        }
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET,
+                StringUtils.getPropertyOrEnv( "javax.xml.accessExternalStylesheet",
+                        "JAVAX_XML_ACCESS_EXTERNAL_STYLESHEET",
+                        "file"));
     }
 
-    public static Attributes parse(InputStream is, Attributes attrs)
-            throws ParserConfigurationException, SAXException, IOException {
-        if (attrs == null)
-            attrs = new Attributes();
-        SAXParser parser = SAXParserFactoryHolder.factory.newSAXParser();
-        parser.parse(is, new ContentHandlerAdapter(attrs));
-        return attrs;
-    }
-
-    public static Attributes parse(String uri)
-            throws ParserConfigurationException, SAXException, IOException {
-        return parse(uri, null);
-    }
-
-    public static Attributes parse(InputStream is)
-            throws ParserConfigurationException, SAXException, IOException {
-        return parse(is, null);
-    }
 }
