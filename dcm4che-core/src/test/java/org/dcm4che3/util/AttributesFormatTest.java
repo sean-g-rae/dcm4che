@@ -40,6 +40,7 @@ package org.dcm4che3.util;
 
 import static org.junit.Assert.*;
 
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.VR;
@@ -65,6 +66,8 @@ public class AttributesFormatTest {
         "{00200011,offset,100}/{00200013,offset,-1}";
     private static final String TEST_PATTERN_SLICE =
         "{00100020,slice,3}/{00100020,slice,3,6}/{00100020,slice,-3}/{00100020,slice,-6,-3}";
+    private static final String TEST_PATTERN_MISSING =
+        "{00100021}/{00100024.00400032}/{00100024.00400033}/{00080051.00400031}/{00080051.00400032}/{00080051.00400033}";
     private static final Pattern ASSERT_PATTERN_RND =
             Pattern.compile("[0-9A-F]{8}+/[0-9a-f]{8}+(-[0-9a-f]{4}+){3}+-[0-9a-f]{12}+/2\\.25\\.\\d*");
 
@@ -80,7 +83,16 @@ public class AttributesFormatTest {
         assertEquals("2011/10/12/09/02C82A3A/71668980/PRIMARY/1.2.3.4.5.dcm",
                 new AttributesFormat(TEST_PATTERN).format(attrs));
     }
-    
+
+    @Test
+    public void testMissing() {
+        Attributes attrs = new Attributes(1);
+        attrs.newSequence(Tag.IssuerOfAccessionNumberSequence, 1).add(
+                new Issuer("ID", null, null).toItem());
+        assertEquals("null/null/null/ID/null/null",
+                new AttributesFormat(TEST_PATTERN_MISSING).format(attrs));
+    }
+
     @Test
     public void testFormatMD5() {
         Attributes attrs = new Attributes();
