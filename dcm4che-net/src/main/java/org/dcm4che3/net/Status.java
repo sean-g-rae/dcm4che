@@ -299,6 +299,9 @@ public class Status {
     public static final int UPSActionNotAppropriate = 0xC314;
     public static final int UPSDoesNotSupportEventReports = 0xC315;
 
+    /** Store Instances Response Failure Reason Values **/
+    public static final int ReferencedTransferSyntaxNotSupported = 0xC112;
+
     public static boolean isPending(int status) {
         return (status & Pending) == Pending;
     }
