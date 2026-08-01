@@ -263,21 +263,23 @@ public class AttributesFormat extends Format {
             @Override
             Object toArg(Attributes attrs, int tag, int index, int offset, Object dateTimeOffset,
                          UnaryOperator<String> splice) {
-                return attrs.getString(tag, index, "");
+                return attrs.getString(tag, index);
             }
         },
         upper {
             @Override
             Object toArg(Attributes attrs, int tag, int index, int offset, Object dateTimeOffset,
                          UnaryOperator<String> splice) {
-                return attrs.getString(tag, index, "").toUpperCase();
+                String s = attrs.getString(tag, index);
+                return s != null ? s.toUpperCase() : null;
             }
         },
         slice {
             @Override
             Object toArg(Attributes attrs, int tag, int index, int offset, Object dateTimeOffset,
                          UnaryOperator<String> slice) {
-                return slice.apply(attrs.getString(tag, index));
+                String s = attrs.getString(tag, index);
+                return s != null ? slice.apply(s) : null;
             }
         },
         number {
@@ -299,7 +301,7 @@ public class AttributesFormat extends Format {
             Object toArg(Attributes attrs, int tag, int index, int offset, Object dateTimeOffset,
                          UnaryOperator<String> splice) {
                 Date date = tag != 0 ? attrs.getDate(tag, index) : new Date();
-                if (!(dateTimeOffset instanceof Period)) return date;
+                if (date == null || !(dateTimeOffset instanceof Period)) return date;
                 Period dateOffset = (Period) dateTimeOffset;
                 Calendar cal = Calendar.getInstance(attrs.getTimeZone());
                 cal.setTime(date);
@@ -314,7 +316,7 @@ public class AttributesFormat extends Format {
             Object toArg(Attributes attrs, int tag, int index, int offset, Object dateTimeOffset,
                          UnaryOperator<String> splice) {
                 Date date = tag != 0 ? attrs.getDate(tag, index) : new Date();
-                if (!(dateTimeOffset instanceof Duration)) return date;
+                if (date == null || !(dateTimeOffset instanceof Duration)) return date;
                 Duration timeOffset = (Duration) dateTimeOffset;
                 Calendar cal = Calendar.getInstance(attrs.getTimeZone());
                 cal.setTime(date);
@@ -447,7 +449,7 @@ public class AttributesFormat extends Format {
                                 beginIndex < 0 ? Math.max(0, l + beginIndex) : beginIndex,
                                 endIndex < 0 ? l + endIndex : Math.min(l, endIndex));
             } catch (RuntimeException e) {
-                return "";
+                return null;
             }
         }
     }
