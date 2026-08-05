@@ -54,7 +54,7 @@
 
   <properties>
     <!-- Tests require the OpenCV native library and can only be run on Linux, Windows and macOS-->
-    <argLine>-Djava.library.path=${project.build.directory}/lib/${os-name}-${cpu-name} -XX:+IgnoreUnrecognizedVMOptions --add-opens=java.desktop/javax.imageio.stream=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED</argLine>
+    <argLine>-Djava.library.path=${project.build.directory}/lib/${os-name}-${cpu-name}</argLine>
   </properties>
   <profiles>
     <profile>
@@ -83,21 +83,6 @@
       <properties>
         <os-name>linux</os-name>
         <cpu-name>aarch64</cpu-name>
-        <lib-file-name>libopencv_java</lib-file-name>
-        <lib-file-ext>so</lib-file-ext>
-      </properties>
-    </profile>
-    <profile>
-      <id>linux-arm32</id>
-      <activation>
-        <os>
-          <name>linux</name>
-          <arch>arm</arch>
-        </os>
-      </activation>
-      <properties>
-        <os-name>linux</os-name>
-        <cpu-name>armv7a</cpu-name>
         <lib-file-name>libopencv_java</lib-file-name>
         <lib-file-ext>so</lib-file-ext>
       </properties>
@@ -143,21 +128,6 @@
       <properties>
         <os-name>windows</os-name>
         <cpu-name>x86-64</cpu-name>
-        <lib-file-name>opencv_java</lib-file-name>
-        <lib-file-ext>dll</lib-file-ext>
-      </properties>
-    </profile>
-    <profile>
-      <id>windows-x86</id>
-      <activation>
-        <os>
-          <family>windows</family>
-          <arch>x86</arch>
-        </os>
-      </activation>
-      <properties>
-        <os-name>windows</os-name>
-        <cpu-name>x86</cpu-name>
         <lib-file-name>opencv_java</lib-file-name>
         <lib-file-ext>dll</lib-file-ext>
       </properties>
