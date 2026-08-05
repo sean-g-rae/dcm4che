@@ -56,7 +56,7 @@ CP="$CP:$DCM4CHE_HOME/lib/commons-cli-${commons-cli.version}.jar"
 
 # Setup the native library path
 if [ "x$JAVA_LIBRARY_PATH" = "x" ]; then
-    OS_ARC=`"$JAVA" -cp $DCM4CHE_HOME/lib/weasis-core-img-${weasis.core.img.version}.jar org.weasis.core.util.NativeLibrary`
+    OS_ARC=`"$JAVA" -cp $DCM4CHE_HOME/lib/weasis-core-img-${weasis.core.img.version}.jar org.weasis.opencv.natives.NativeLibrary`
     JAVA_LIBRARY_PATH=$DCM4CHE_HOME/lib/${OS_ARC}
 
     case "$OS_ARC" in
