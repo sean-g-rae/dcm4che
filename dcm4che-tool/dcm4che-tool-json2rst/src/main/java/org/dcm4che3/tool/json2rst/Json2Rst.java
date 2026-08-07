@@ -225,7 +225,9 @@ public class Json2Rst {
                 formatURL(property.getString("description"))
                         .replace("\"","\"\"")
                         .replaceAll("<br>", "\n\n\t")
-                        .replaceAll("\\(hover on options to see their descriptions\\)", "")));
+                        .replaceAll("\\(hover on options to see their descriptions\\)", "")
+                        .replaceAll("&lt;", "<")
+                        .replaceAll("&gt;", ">")));
         JsonArray anEnum = typeObj.getJsonArray("enum");
         if (anEnum != null) {
             out.println();
