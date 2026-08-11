@@ -108,6 +108,7 @@ public class Decompressor {
     protected ImageReadParam readParam;
     protected PatchJPEGLS patchJpegLS;
     protected ImageDescriptor imageDescriptor;
+    private int[] frameStartFragments;
 
     public Decompressor(Attributes dataset, String tsuid) {
         if (tsuid == null)
@@ -136,16 +137,17 @@ public class Decompressor {
         this.frameLength = rows * cols * samples * bitsAllocated / 8;
         this.length = frameLength * frames;
         this.imageDescriptor = new ImageDescriptor(dataset);
-        
+
         if (pixeldata instanceof Fragments) {
             if (!tstype.isPixeldataEncapsulated())
                 throw new IllegalArgumentException("Encapusulated Pixel Data"
                         + "with Transfer Syntax: " + tsuid);
             this.pixeldataFragments = (Fragments) pixeldata;
 
+            // At least one fragment per frame (plus the Basic Offset Table); a frame's code stream may also
+            // span several fragments (PS3.5 §8.2), so more fragments than frames is valid too.
             int numFragments = pixeldataFragments.size();
-            if (frames == 1 ? (numFragments < 2)
-                            : (numFragments != frames + 1))
+            if (numFragments < frames + 1)
                 throw new IllegalArgumentException(
                         "Number of Pixel Data Fragments: "
                         + numFragments + " does not match " + frames);
@@ -179,7 +181,7 @@ public class Decompressor {
     public boolean decompress() {
         if (decompressor == null)
             return false;
- 
+
         if (tstype == TransferSyntaxType.RLE)
             bi = createBufferedImage(bitsStored, true, signed);
 
@@ -213,7 +215,7 @@ public class Decompressor {
             }
         });
         if (samples > 1) {
-            dataset.setString(Tag.PhotometricInterpretation, VR.CS, 
+            dataset.setString(Tag.PhotometricInterpretation, VR.CS,
                     pmiAfterDecompression.toString());
 
             dataset.setInt(Tag.PlanarConfiguration, VR.US,
@@ -228,7 +230,7 @@ public class Decompressor {
 
     protected BufferedImage createBufferedImage(int bitsStored,
             boolean banded, boolean signed) {
-        int dataType = bitsAllocated > 8 
+        int dataType = bitsAllocated > 8
                 ? (signed ? DataBuffer.TYPE_SHORT : DataBuffer.TYPE_USHORT)
                 : DataBuffer.TYPE_BYTE;
         ComponentColorModel cm = samples == 1
@@ -288,9 +290,23 @@ public class Decompressor {
     @SuppressWarnings("resource")
     protected BufferedImage decompressFrame(ImageInputStream iis, int index)
             throws IOException {
-        SegmentedInputImageStream siis =
-                new SegmentedInputImageStream(iis, pixeldataFragments, index);
+        // A frame usually occupies a single fragment, but its code stream may span several (PS3.5 §8.2);
+        // in that case the stream covers the whole fragment range so the Item delimiters between them are
+        // skipped instead of corrupting the code stream.
+        SegmentedInputImageStream siis;
+        if (pixeldataFragments.size() - 1 == frames) {
+            siis = new SegmentedInputImageStream(iis, pixeldataFragments, index);
+        } else {
+            if (frameStartFragments == null) {
+                frameStartFragments =
+                        SegmentedInputImageStream.frameStartFragments(pixeldataFragments, frames, iis);
+            }
+            int first = frameStartFragments[index];
+            int last = index + 1 < frames ? frameStartFragments[index + 1] : pixeldataFragments.size();
+            siis = new SegmentedInputImageStream(iis, pixeldataFragments, first, last);
+        }
         siis.setImageDescriptor(imageDescriptor);
+        siis.setFile(file);
         decompressor.setInput(patchJpegLS != null
                 ? new PatchJPEGLSImageInputStream(siis, patchJpegLS)
                 : siis);
