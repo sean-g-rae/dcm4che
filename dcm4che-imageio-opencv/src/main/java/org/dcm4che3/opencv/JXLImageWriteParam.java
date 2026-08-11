@@ -51,16 +51,12 @@ import javax.imageio.ImageWriteParam;
  */
 public class JXLImageWriteParam extends ImageWriteParam {
 
-    private static final String[] COMPRESSION_TYPES = {
-        "LOSSLESS",
-        "LOSSY"
-    };
+    private static final String[] COMPRESSION_TYPES = { "LOSSLESS", "LOSSY" };
 
-    /** JXL compression effort (1-9, default: 7) - Higher values are slower but produce smaller files */
+    /** JXL compression effort (1-9, default: 7) - higher values are slower but produce smaller files. */
     private int effort;
-  /** JXL  decoding speed (0-4, default: 0 lowest to decode, best quality/density) */
+    /** JXL decoding speed (0-4, default: 0 - lowest to decode, best quality/density). */
     private int decodingSpeed = 0;
-
 
     public JXLImageWriteParam(Locale locale) {
         super(locale);
@@ -70,13 +66,12 @@ public class JXLImageWriteParam extends ImageWriteParam {
         super.compressionTypes = COMPRESSION_TYPES;
         super.compressionQuality = 0.90F; // JXL default to high quality
         this.effort = 7;
-
     }
 
     /**
      * Returns the compression effort level (1-9).
      * Higher values produce smaller files but take longer to encode.
-     * 
+     *
      * @return the effort level
      */
     public int getEffort() {
@@ -85,7 +80,7 @@ public class JXLImageWriteParam extends ImageWriteParam {
 
     /**
      * Sets the compression effort level (1-9).
-     * 
+     *
      * @param effort the effort level (1-9)
      * @throws IllegalArgumentException if effort is not in range [1,9]
      */
@@ -101,7 +96,7 @@ public class JXLImageWriteParam extends ImageWriteParam {
         return "LOSSLESS".equals(compressionType);
     }
 
-  /**
+    /**
      * Gets the effective quality value based on compression type.
      * For quality-based compression, returns compressionQuality.
      * For distance-based compression, converts distance to approximate quality.
@@ -110,44 +105,38 @@ public class JXLImageWriteParam extends ImageWriteParam {
      * @return the effective quality value (0.0-1.0)
      */
     public float getEffectiveQuality() {
-      if (compressionType.equals("LOSSLESS")) {
-        return 1.0f;
-      }
-      return compressionQuality;
+        return isCompressionLossless() ? 1.0f : compressionQuality;
     }
 
-    /**
-     * Sets compression parameters for lossless encoding.
-     */
     public void setLossless() {
         compressionType = "LOSSLESS";
     }
 
     /**
-     * Sets compression parameters for quality-based lossy encoding.
+     * Sets the quality-based lossy compression quality, clamped to [0.0, 1.0].
      *
      * @param quality the quality value (0.0-1.0)
      */
+    @Override
     public void setCompressionQuality(float quality) {
-        quality = Math.max(0.0f, Math.min(1.0f, quality));
-        super.setCompressionQuality(quality);
+        super.setCompressionQuality(Math.max(0.0f, Math.min(1.0f, quality)));
     }
 
+    /** Returns the decoding speed (0-4). */
     public int getDecodingSpeed() {
         return decodingSpeed;
-      }
+    }
 
-      /**
-       * Sets the decoding speed (0-4).
-       * Higher values produce faster decoding but lower quality/density.
-       *
-       * @param decodingSpeed the decoding speed (0-4)
-       * @throws IllegalArgumentException if decodingSpeed is not in range [0,4]
-       */
-      public void setDecodingSpeed(int decodingSpeed) {
+    /**
+     * Sets the decoding speed (0-4); higher values decode faster but reduce quality/density.
+     *
+     * @param decodingSpeed the decoding speed (0-4)
+     * @throws IllegalArgumentException if decodingSpeed is not in range [0,4]
+     */
+    public void setDecodingSpeed(int decodingSpeed) {
         if (decodingSpeed < 0 || decodingSpeed > 4) {
             throw new IllegalArgumentException("Decoding speed must be between 0 and 4, got: " + decodingSpeed);
         }
         this.decodingSpeed = decodingSpeed;
-      }
+    }
 }

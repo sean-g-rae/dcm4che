@@ -130,6 +130,8 @@ public class DicomImageReader extends ImageReader implements Closeable {
 
     private int frames;
 
+    private int[] frameStartFragments;
+
     private int flushedFrames;
 
     private int width;
@@ -254,10 +256,10 @@ public class DicomImageReader extends ImageReader implements Closeable {
         ColorSpace cspace = colorSpaceOfFrame(frameIndex).orElse(sRGB);
         if (decompressor == null)
             return createImageType(bitsStored, dataType, banded, cspace);
-        
+
         if (rle)
             return createImageType(bitsStored, dataType, true, cspace);
-        
+
         openiis();
         try {
             decompressor.setInput(iisOfFrame(0));
@@ -315,9 +317,9 @@ public class DicomImageReader extends ImageReader implements Closeable {
         return new DicomImageReadParam();
     }
 
-    /** 
+    /**
      * Gets the stream metadata.  May not contain post pixel data unless
-     * there are no images or the getStreamMetadata has been called with the post pixel data 
+     * there are no images or the getStreamMetadata has been called with the post pixel data
      * node being specified.
      */
     @Override
@@ -325,7 +327,7 @@ public class DicomImageReader extends ImageReader implements Closeable {
         readMetadata();
         return metadata;
     }
-    
+
     /**
      * Gets the stream metadata.
      * If nodeNames contains POST_PIXEL_DATA constant "postPixelData" then
@@ -419,7 +421,7 @@ public class DicomImageReader extends ImageReader implements Closeable {
     private boolean bigEndian() {
         return metadata.bigEndian();
     }
-    
+
     private String getTransferSyntaxUID() {
         return metadata.getTransferSyntaxUID();
     }
@@ -563,7 +565,7 @@ public class DicomImageReader extends ImageReader implements Closeable {
 
     /** Generate an image input stream for the given frame, -1 for all frames (video, multi-component single frame)
      * Does not necessarily support the length operation without seeking/reading to the end of the input.
-     * 
+     *
      * @param frameIndex
      * @return
      * @throws IOException
@@ -575,14 +577,109 @@ public class DicomImageReader extends ImageReader implements Closeable {
             iisOfFrame = epdiis;
         } else if( pixelDataFragments==null ) {
             return null;
-        } else {
-            iisOfFrame = new SegmentedInputImageStream(
-                    iis, pixelDataFragments, frames==1 ? -1 : frameIndex);
+        } else if (frames == 1 || frameIndex < 0) {
+            // Single frame, or -1 == the whole pixel data value: all fragments belong to it.
+            iisOfFrame = new SegmentedInputImageStream(iis, pixelDataFragments, -1);
             ((SegmentedInputImageStream) iisOfFrame).setImageDescriptor(imageDescriptor);
+            ((SegmentedInputImageStream) iisOfFrame).setFile(pixelDataFile);
+        } else {
+            // Multi-frame: map the frame to its fragment range, which may span several fragments
+            // (PS3.5 §8.2) whose inter-fragment Item delimiters are then skipped.
+            int[] starts = frameStartFragments();
+            int first = starts[frameIndex];
+            int last = frameIndex + 1 < starts.length ? starts[frameIndex + 1] : pixelDataFragments.size();
+            iisOfFrame = new SegmentedInputImageStream(iis, pixelDataFragments, first, last);
+            ((SegmentedInputImageStream) iisOfFrame).setImageDescriptor(imageDescriptor);
+            ((SegmentedInputImageStream) iisOfFrame).setFile(pixelDataFile);
         }
         return patchJpegLS != null
                 ? new PatchJPEGLSImageInputStream(iisOfFrame, patchJpegLS)
                 : iisOfFrame;
+    }
+
+    /** Lazily computes (and caches) the fragment list index at which each frame's code stream starts. */
+    private int[] frameStartFragments() throws IOException {
+        if (frameStartFragments == null) {
+            frameStartFragments = resolveFrameFragments();
+        }
+        return frameStartFragments;
+    }
+
+    /**
+     * Maps each frame to the {@link #pixelDataFragments} index its code stream starts at, supporting frames
+     * that span several fragments (PS3.5 §8.2). The list arrives either as one {@code BulkData} per fragment
+     * (parsed from a dataset) or one per frame collapsed from the Basic Offset Table ({@link
+     * #generateOffsetLengths}); the collapsed multi-fragment case is detected from frame 0's real Item
+     * header and re-read first. Grouping uses the Basic Offset Table when present, else the
+     * start-of-code-stream marker opening each frame.
+     */
+    private int[] resolveFrameFragments() throws IOException {
+        // In-memory or absent fragments cannot be walked by offset: keep the legacy mapping.
+        if (pixelDataFragments.size() < 2) {
+            return identityFrameStarts();
+        }
+        Object frag1 = pixelDataFragments.get(1);
+        if (!(frag1 instanceof BulkData)) {
+            return identityFrameStarts();
+        }
+        if (pixelDataFragments.size() - 1 > frames) {
+            return groupFragmentsIntoFrames(); // already one BulkData per fragment - just group them
+        }
+        BulkData firstFrag = (BulkData) frag1;
+        long start = firstFrag.offset() - 8; // first fragment's Item header (index 0 is the Basic Offset Table)
+        if (start < 0) {
+            return identityFrameStarts();
+        }
+        openiis();
+        byte[] hdr = new byte[8];
+        iis.seek(start);
+        iis.readFully(hdr);
+        // One BulkData per frame: equal Basic-Offset-Table span and real first-fragment length means a single
+        // fragment per frame; a shorter first fragment (or unknown length) means re-read the real boundaries.
+        if (ByteUtils.bytesToTagLE(hdr, 0) != Tag.Item || ByteUtils.bytesToIntLE(hdr, 4) == firstFrag.length()) {
+            return identityFrameStarts();
+        }
+        rebuildPerFragment(start);
+        return groupFragmentsIntoFrames();
+    }
+
+    /** Re-reads the real Item boundaries, replacing {@link #pixelDataFragments} with one {@link BulkData}
+     * per fragment (the Basic Offset Table stays at index 0). */
+    private void rebuildPerFragment(long start) throws IOException {
+        boolean bigEndian = pixelDataFragments.bigEndian();
+        Fragments perFragment = new Fragments(pixelDataVR, bigEndian, frames);
+        perFragment.add(pixelDataFragments.get(0));
+        byte[] hdr = new byte[8];
+        long pos = start;
+        while (true) {
+            iis.seek(pos);
+            try {
+                iis.readFully(hdr);
+            } catch (EOFException e) {
+                break;
+            }
+            if (ByteUtils.bytesToTagLE(hdr, 0) != Tag.Item) {
+                break; // Sequence Delimitation Item or end of stream
+            }
+            int len = ByteUtils.bytesToIntLE(hdr, 4);
+            perFragment.add(new BulkData("compressedPixelData://", pos + 8, len, bigEndian));
+            pos += 8 + (len & 0xFFFFFFFFL);
+        }
+        pixelDataFragments = perFragment;
+    }
+
+    /** Groups the one-{@code BulkData}-per-fragment {@link #pixelDataFragments} list into per-frame start indices. */
+    private int[] groupFragmentsIntoFrames() throws IOException {
+        openiis();
+        return SegmentedInputImageStream.frameStartFragments(pixelDataFragments, frames, iis);
+    }
+
+    private int[] identityFrameStarts() {
+        int[] starts = new int[frames];
+        for (int i = 0; i < frames; i++) {
+            starts[i] = i + 1;
+        }
+        return starts;
     }
 
     public Optional<ColorSpace> colorSpaceOfFrame(int frameIndex) {
@@ -706,7 +803,7 @@ public class DicomImageReader extends ImageReader implements Closeable {
     }
 
     private Attributes selectFctGroup(Attributes imgAttrs,
-            Attributes sharedFctGroups, 
+            Attributes sharedFctGroups,
             Attributes frameFctGroups,
             int tag) {
         if (frameFctGroups == null) {
@@ -731,7 +828,7 @@ public class DicomImageReader extends ImageReader implements Closeable {
                         int[] refFrames = refImg.getInts(Tag.ReferencedFrameNumber);
                         if (refFrames == null  || refFrames.length == 0)
                             return voiLUT;
-    
+
                         for (int refFrame : refFrames)
                             if (refFrame == frame)
                                 return voiLUT;
@@ -794,12 +891,12 @@ public class DicomImageReader extends ImageReader implements Closeable {
         }
         dis.readItemHeader();
         byte[] b = new byte[dis.length()];
-        dis.readFully(b);        
+        dis.readFully(b);
 
         long start = dis.getPosition();
         pixelDataFragments = new Fragments(pixelDataVR, dis.bigEndian(), frames);
         pixelDataFragments.add(b);
-        
+
         generateOffsetLengths(pixelDataFragments, frames,b, start);
     }
 
@@ -847,7 +944,7 @@ public class DicomImageReader extends ImageReader implements Closeable {
             banded = samples > 1 && ds.getInt(Tag.PlanarConfiguration, 0) != 0;
             bitsAllocated = ds.getInt(Tag.BitsAllocated, 8);
             bitsStored = ds.getInt(Tag.BitsStored, bitsAllocated);
-            dataType = bitsAllocated <= 8 ? DataBuffer.TYPE_BYTE 
+            dataType = bitsAllocated <= 8 ? DataBuffer.TYPE_BYTE
                                           : DataBuffer.TYPE_USHORT;
             pmi = PhotometricInterpretation.fromString(
                     ds.getString(Tag.PhotometricInterpretation, "MONOCHROME2"));
@@ -858,7 +955,7 @@ public class DicomImageReader extends ImageReader implements Closeable {
                 Attributes fmi = metadata.getFileMetaInformation();
                 if (fmi == null)
                     throw new IllegalArgumentException("Missing File Meta Information for Data Set with compressed Pixel Data");
-                
+
                 String tsuid = fmi.getString(Tag.TransferSyntaxUID);
                 ImageReaderParam param =
                         ImageReaderFactory.getImageReaderParam(tsuid);
@@ -904,6 +1001,7 @@ public class DicomImageReader extends ImageReader implements Closeable {
         pixeldataBytes = null;
         pixelDataFile = null;
         frames = 0;
+        frameStartFragments = null;
         flushedFrames = 0;
         width = 0;
         height = 0;

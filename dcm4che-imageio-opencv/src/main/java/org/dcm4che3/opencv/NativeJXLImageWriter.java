@@ -41,41 +41,24 @@
 
 package org.dcm4che3.opencv;
 
+import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.nio.ByteOrder;
 
-import javax.imageio.IIOException;
-import javax.imageio.IIOImage;
-import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.spi.ImageWriterSpi;
-import javax.imageio.stream.ImageOutputStream;
 
-import org.dcm4che3.image.PhotometricInterpretation;
-import org.dcm4che3.imageio.codec.BytesWithImageImageDescriptor;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.opencv.core.CvType;
-import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.osgi.OpenCVNativeLoader;
 import org.weasis.opencv.data.ImageCV;
 import org.weasis.opencv.op.ImageConversion;
-
-import java.awt.image.RenderedImage;
 
 /**
  * @author Nicolas Roduit
  * @since Mar 2025
  */
-class NativeJXLImageWriter extends ImageWriter {
-    static {
-        // Load the native OpenCV library
-        OpenCVNativeLoader loader = new OpenCVNativeLoader();
-        loader.init();
-    }
+class NativeJXLImageWriter extends AbstractNativeImageWriter {
 
     NativeJXLImageWriter(ImageWriterSpi originatingProvider) throws IOException {
         super(originatingProvider);
@@ -87,105 +70,42 @@ class NativeJXLImageWriter extends ImageWriter {
     }
 
     @Override
-    public void write(IIOMetadata streamMetadata, IIOImage image, ImageWriteParam param) throws IOException {
-        if (output == null) {
-            throw new IllegalStateException("output cannot be null");
-        }
-
-        if (!(output instanceof ImageOutputStream)) {
-            throw new IllegalArgumentException("output is not an ImageOutputStream!");
-        }
-        ImageOutputStream stream = (ImageOutputStream) output;
-        stream.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-
-      JXLImageWriteParam jxlParams = (JXLImageWriteParam) param;
-
-      if (!(stream instanceof BytesWithImageImageDescriptor)) {
-        throw new IllegalArgumentException("stream does not implement BytesWithImageImageDescriptor!");
-      }
-      ImageDescriptor desc = ((BytesWithImageImageDescriptor) stream).getImageDescriptor();
-      PhotometricInterpretation pi = desc.getPhotometricInterpretation();
-
-      if (jxlParams.isCompressionLossless() && (PhotometricInterpretation.YBR_FULL_422 == pi
-          || PhotometricInterpretation.YBR_PARTIAL_422 == pi || PhotometricInterpretation.YBR_PARTIAL_420 == pi
-          || PhotometricInterpretation.YBR_ICT == pi || PhotometricInterpretation.YBR_RCT == pi)) {
-        throw new IllegalArgumentException(
-            "True lossless encoder: Photometric interpretation is not supported: " + pi);
-      }
-
-        RenderedImage renderedImage = image.getRenderedImage();
-        Mat buf = null;
-        MatOfInt dicomParams = null;
-        try {
-            ImageCV mat = null;
-            try {
-                // JXL codec requires BGR or Gray
-                mat = ImageConversion.toMat(renderedImage, param.getSourceRegion(), true);
-
-                int bitCompressed = desc.getBitsCompressed();
-                bitCompressed = ((bitCompressed + 7) / 8) * 8;
-                int cvType = mat.type();
-                int channels = CvType.channels(cvType);
-                int epi = channels == 1 ? Imgcodecs.EPI_Monochrome2 : Imgcodecs.EPI_RGB;
-                int dcmFlags = desc.isSigned() ? Imgcodecs.DICOM_FLAG_SIGNED : Imgcodecs.DICOM_FLAG_UNSIGNED;
-
-                // JXL-specific parameters
-                float effectiveQuality = jxlParams.getEffectiveQuality();
-                int effort = jxlParams.getEffort();
-                int decodingSpeed = jxlParams.getDecodingSpeed();
-
-                int[] params = new int[18]; // Extended for JXL parameters
-                params[Imgcodecs.DICOM_PARAM_IMREAD] = Imgcodecs.IMREAD_UNCHANGED; // Image flags
-                params[Imgcodecs.DICOM_PARAM_DCM_IMREAD] = dcmFlags; // DICOM flags
-                params[Imgcodecs.DICOM_PARAM_WIDTH] = mat.width(); // Image width
-                params[Imgcodecs.DICOM_PARAM_HEIGHT] = mat.height(); // Image height
-                params[Imgcodecs.DICOM_PARAM_COMPRESSION] = Imgcodecs.DICOM_CP_JXL; // Type of compression
-                params[Imgcodecs.DICOM_PARAM_COMPONENTS] = channels; // Number of components
-                params[Imgcodecs.DICOM_PARAM_BITS_PER_SAMPLE] = bitCompressed; // Bits per sample
-                params[Imgcodecs.DICOM_PARAM_INTERLEAVE_MODE] = Imgcodecs.ILV_SAMPLE; // Interleave mode
-                params[Imgcodecs.DICOM_PARAM_COLOR_MODEL] = epi; // Photometric interpretation
-                params[Imgcodecs.DICOM_PARAM_JPEG_QUALITY] = (int)(effectiveQuality * 100); // Quality (0-100)
-                params[Imgcodecs.DICOM_PARAM_JXL_EFFORT] = effort; // Effort (1-9)
-                params[Imgcodecs.DICOM_PARAM_JXL_DECODING_SPEED] = decodingSpeed; // Decoding speed (0-4) (0 lowest to decode, best quality/density)
-
-                dicomParams = new MatOfInt(params);
-                buf = Imgcodecs.dicomJpgWrite(mat, dicomParams, "");
-                if (buf.empty()) {
-                    throw new IIOException("Native JPEG XL encoding error: null image");
-                }
-            } finally {
-                if (mat != null) {
-                    mat.release();
-                }
-            }
-            byte[] bSrcData = new byte[buf.width() * buf.height() * (int) buf.elemSize()];
-            buf.get(0, 0, bSrcData);
-            stream.write(bSrcData);
-        } catch (Throwable t) {
-            throw new IIOException("Native JPEG XL encoding error", t);
-        } finally {
-            NativeImageReader.closeMat(dicomParams);
-            NativeImageReader.closeMat(buf);
-        }
+    String codecName() {
+        return "JPEG XL";
     }
 
     @Override
-    public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
-        return null;
+    void validate(ImageWriteParam param, ImageDescriptor desc) {
+        rejectChromaSubsampledLossless(param.isCompressionLossless(),
+            desc.getPhotometricInterpretation());
     }
 
     @Override
-    public IIOMetadata getDefaultImageMetadata(ImageTypeSpecifier imageType, ImageWriteParam param) {
-        return null;
+    ImageCV toMat(RenderedImage image, ImageWriteParam param, ImageDescriptor desc) {
+        // JXL codec requires BGR or Gray
+        return ImageConversion.toMat(image, param.getSourceRegion(), true);
     }
 
     @Override
-    public IIOMetadata convertStreamMetadata(IIOMetadata inData, ImageWriteParam param) {
-        return null;
-    }
+    MatOfInt buildDicomParams(ImageCV mat, RenderedImage image, ImageWriteParam param, ImageDescriptor desc) {
+        JXLImageWriteParam jxlParams = (JXLImageWriteParam) param;
+        int bitCompressed = ((desc.getBitsCompressed() + 7) / 8) * 8; // round up to whole bytes
+        int channels = CvType.channels(mat.type());
+        int dcmFlags = desc.isSigned() ? Imgcodecs.DICOM_FLAG_SIGNED : Imgcodecs.DICOM_FLAG_UNSIGNED;
 
-    @Override
-    public IIOMetadata convertImageMetadata(IIOMetadata inData, ImageTypeSpecifier imageType, ImageWriteParam param) {
-        return null;
+        int[] params = new int[18]; // Extended for JXL parameters
+        params[Imgcodecs.DICOM_PARAM_IMREAD] = Imgcodecs.IMREAD_UNCHANGED; // Image flags
+        params[Imgcodecs.DICOM_PARAM_DCM_IMREAD] = dcmFlags; // DICOM flags
+        params[Imgcodecs.DICOM_PARAM_WIDTH] = mat.width(); // Image width
+        params[Imgcodecs.DICOM_PARAM_HEIGHT] = mat.height(); // Image height
+        params[Imgcodecs.DICOM_PARAM_COMPRESSION] = Imgcodecs.DICOM_CP_JXL; // Type of compression
+        params[Imgcodecs.DICOM_PARAM_COMPONENTS] = channels; // Number of components
+        params[Imgcodecs.DICOM_PARAM_BITS_PER_SAMPLE] = bitCompressed; // Bits per sample
+        params[Imgcodecs.DICOM_PARAM_INTERLEAVE_MODE] = Imgcodecs.ILV_SAMPLE; // Interleave mode
+        params[Imgcodecs.DICOM_PARAM_COLOR_MODEL] = monochromeOrRgb(channels); // Photometric interpretation
+        params[Imgcodecs.DICOM_PARAM_JPEG_QUALITY] = (int) (jxlParams.getEffectiveQuality() * 100); // Quality (0-100)
+        params[Imgcodecs.DICOM_PARAM_JXL_EFFORT] = jxlParams.getEffort(); // Effort (1-9)
+        params[Imgcodecs.DICOM_PARAM_JXL_DECODING_SPEED] = jxlParams.getDecodingSpeed(); // Decoding speed (0-4, 0 = best quality/density)
+        return new MatOfInt(params);
     }
 }

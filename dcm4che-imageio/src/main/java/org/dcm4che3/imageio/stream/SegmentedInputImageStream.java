@@ -38,6 +38,7 @@
 
 package org.dcm4che3.imageio.stream;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -75,6 +76,7 @@ public class SegmentedInputImageStream extends ImageInputStreamImpl {
     private final List<Object> fragments;
     private byte[] byteFrag;
     private ImageDescriptor imageDescriptor;
+    private File file;
 
     /**
      * Create a segmented input stream, that updates the bulk data entries as required, frameIndex
@@ -94,6 +96,21 @@ public class SegmentedInputImageStream extends ImageInputStreamImpl {
         seek(0);
     }
 
+    /**
+     * Creates a stream over the fragment list range {@code [firstSegment, lastSegment)} (index 0 is the
+     * Basic Offset Table). Used when a frame's code stream spans several fragments: their data is
+     * concatenated while the inter-fragment Item delimiters are skipped.
+     */
+    public SegmentedInputImageStream(ImageInputStream stream,
+            Fragments pixeldataFragments, int firstSegment, int lastSegment) throws IOException {
+        this.fragments = pixeldataFragments;
+        this.stream = stream;
+        this.firstSegment = firstSegment;
+        this.lastSegment = lastSegment;
+        this.curSegment = firstSegment;
+        seek(0);
+    }
+
     public SegmentedInputImageStream(ImageInputStream iis, long streamPosition, int length, boolean singleFrame) throws IOException {
         fragments = new Fragments(VR.OB, false, 16);
         if( !singleFrame ) {
@@ -105,12 +122,69 @@ public class SegmentedInputImageStream extends ImageInputStreamImpl {
         seek(0);
     }
 
+    /**
+     * Groups a one-{@link BulkData}-per-fragment list (index 0 is the Basic Offset Table) into the fragment
+     * index at which each of {@code frames} frames begins, supporting frames whose code stream spans several
+     * fragments (PS3.5 §8.2). Frame starts come from the Basic Offset Table when it covers all frames,
+     * otherwise from the start-of-code-stream marker (the two bytes opening each frame's first fragment) read
+     * from {@code stream}. A frame spans the fragments up to the next frame's start (or the end of the list).
+     */
+    public static int[] frameStartFragments(List<Object> fragments, int frames, ImageInputStream stream)
+            throws IOException {
+        int fragmentCount = fragments.size() - 1;
+        int[] starts = new int[frames];
+        if (fragmentCount <= frames) {
+            for (int i = 0; i < frames; i++) {
+                starts[i] = i + 1; // one fragment per frame (or fewer) - nothing to group
+            }
+            return starts;
+        }
+        long start = ((BulkData) fragments.get(1)).offset() - 8;
+        byte[] bot = fragments.get(0) instanceof byte[] ? (byte[]) fragments.get(0) : new byte[0];
+        boolean useBot = bot.length >= frames * 4;
+        int n = 0;
+        int frameStartWord = -1;
+        for (int idx = 1; idx <= fragmentCount && n < frames; idx++) {
+            BulkData frag = (BulkData) fragments.get(idx);
+            boolean frameStart;
+            if (useBot) {
+                frameStart = (frag.offset() - 8 - start) == (ByteUtils.bytesToIntLE(bot, n * 4) & 0xFFFFFFFFL);
+            } else {
+                stream.seek(frag.offset());
+                int word = (stream.read() << 8) | stream.read(); // first two bytes of the fragment's code stream
+                if (idx == 1) {
+                    frameStartWord = word;
+                    frameStart = true;
+                } else {
+                    frameStart = word == frameStartWord;
+                }
+            }
+            if (frameStart) {
+                starts[n++] = idx;
+            }
+        }
+        if (n != frames) {
+            throw new IOException("Cannot map " + fragmentCount + " pixel data fragments to " + frames
+                    + " frames (found " + n + " frame starts)");
+        }
+        return starts;
+    }
+
     public ImageDescriptor getImageDescriptor() {
         return imageDescriptor;
     }
 
     public void setImageDescriptor(ImageDescriptor imageDescriptor) {
         this.imageDescriptor = imageDescriptor;
+    }
+
+    /** The file backing the fragments, or {@code null} when the pixel data is not read from a file. */
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
     }
 
     /** Just read from the raw data segment - this gets converted to an in-memory fragments object,

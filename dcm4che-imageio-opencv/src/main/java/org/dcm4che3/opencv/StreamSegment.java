@@ -41,19 +41,14 @@
 
 package org.dcm4che3.opencv;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.imageio.ImageReadParam;
 import javax.imageio.stream.FileCacheImageInputStream;
-import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageInputStream;
 
 import org.dcm4che3.data.BulkData;
 import org.dcm4che3.imageio.codec.BytesWithImageImageDescriptor;
@@ -72,8 +67,7 @@ public abstract class StreamSegment {
 
     static {
         // Load the native OpenCV library
-        OpenCVNativeLoader loader = new OpenCVNativeLoader();
-        loader.init();
+        new OpenCVNativeLoader().init();
     }
 
     private final long[] segPosition;
@@ -104,93 +98,99 @@ public abstract class StreamSegment {
         }
         throw new IllegalArgumentException("No stream adaptor found for " + iis.getClass().getName() + "!");
     }
-    
+
     public static boolean supportsInputStream(Object iis) {
         // This list must reflect getStreamSegment()'s implementation
-        return
-            (iis instanceof ExtendSegmentedInputImageStream) ||
-            (iis instanceof SegmentedInputImageStream) ||
-            (iis instanceof BytesWithImageImageDescriptor)
-        ;
+        return iis instanceof ExtendSegmentedInputImageStream
+            || iis instanceof SegmentedInputImageStream
+            || iis instanceof BytesWithImageImageDescriptor;
     }
 
     private static StreamSegment getFileStreamSegment(SegmentedInputImageStream iis) {
         try {
-
-                ImageInputStream fstream = iis.getStream();
-                Field fRaf = null;
-                if (fstream instanceof FileImageInputStream) {
-                    fRaf = FileImageInputStream.class.getDeclaredField("raf");
-                } else if (fstream instanceof FileCacheImageInputStream) {
-                    fRaf = FileCacheImageInputStream.class.getDeclaredField("cache");
-                }
-
-                if (fRaf != null) {
-                    fRaf.setAccessible(true);
-                    long[][] seg = getSegments(iis);
-                    if (seg != null) {
-                        RandomAccessFile raf = (RandomAccessFile) fRaf.get(fstream);
-                        /*
-                         * PS 3.5.8.2 Though a fragment may not contain encoded data from more than one frame, the
-                         * encoded data from one frame may span multiple fragments. See note in Section 8.2.
-                         */
-                        return new FileStreamSegment(raf, seg[0], seg[1], iis.getImageDescriptor());
-                    }
-                }
-                if (fstream instanceof MemoryCacheImageInputStream) {
-                    MemoryCacheImageInputStream mstream = (MemoryCacheImageInputStream) fstream;
-                    byte[] b = MemoryStreamSegment.getByte(MemoryStreamSegment.getByteArrayInputStream(mstream));
-                    if (b != null) {
-                        long[][] seg = getSegments(iis);
-                        if (seg != null) {
-                            int offset = (int) seg[0][0];
-                            return new MemoryStreamSegment(
-                                ByteBuffer.wrap(Arrays.copyOfRange(b, offset, offset + (int) seg[1][0])),
-                                iis.getImageDescriptor());
-                        }
-                    }
-                }
-                LOGGER.error("Cannot read SegmentedInputImageStream with {} ", fstream.getClass());
+            long[][] seg = getSegments(iis);
+            if (seg == null) {
+                return null;
+            }
+            File file = iis.getFile();
+            if (file != null) {
+                /*
+                 * PS 3.5.8.2 Though a fragment may not contain encoded data from more than one frame, the
+                 * encoded data from one frame may span multiple fragments. See note in Section 8.2. The native
+                 * codec reads the encoded stream directly from the file by path, at the given segment offsets.
+                 */
+                return new FileStreamSegment(file, seg[0], seg[1], iis.getImageDescriptor());
+            }
+            /*
+             * Not file-backed (in-memory fragments or a non-file input stream): read the encoded frame straight
+             * from the segmented stream - which already concatenates the fragments and skips the inter-fragment
+             * Item delimiters - into a memory buffer, without reflecting into the JDK ImageInputStream.
+             */
+            ByteBuffer buffer = readFrame(iis, seg[1]);
+            if (buffer != null) {
+                return new MemoryStreamSegment(buffer, iis.getImageDescriptor());
+            }
+            LOGGER.error("Cannot read SegmentedInputImageStream from {}", iis.getStream());
         } catch (Exception e) {
-            LOGGER.error("Building FileStreamSegment from SegmentedInputImageStream", e);
+            LOGGER.error("Building StreamSegment from SegmentedInputImageStream", e);
         }
         return null;
     }
 
+    /** Reads the {@code segLength}-byte encoded frame from the segmented stream into a memory buffer. */
+    private static ByteBuffer readFrame(SegmentedInputImageStream iis, long[] segLength) throws IOException {
+        long total = 0;
+        for (long len : segLength) {
+            total += len & 0xFFFFFFFFL;
+        }
+        if (total <= 0 || total > Integer.MAX_VALUE) {
+            return null;
+        }
+        byte[] data = new byte[(int) total];
+        long pos = iis.getStreamPosition();
+        try {
+            iis.seek(0);
+            iis.readFully(data);
+        } finally {
+            iis.seek(pos);
+        }
+        return ByteBuffer.wrap(data);
+    }
+
     private static long[][] getSegments(SegmentedInputImageStream iis) throws IOException {
         Integer curSegment = iis.getCurSegment();
-        if (curSegment != null && curSegment >= 0) {
-            ImageDescriptor desc = iis.getImageDescriptor();
-                List<Object> fragments = iis.getFragments();
-                Integer lastSegment = iis.getLastSegment();
-                if (!desc.isMultiframe() && lastSegment < fragments.size()) {
-                    lastSegment = fragments.size();
-                }
-                long[] segPositions = new long[lastSegment - curSegment];
-                long[] segLength = new long[segPositions.length];
-                long beforePos = 0;
-
-                for (int i = curSegment; i < lastSegment; i++) {
-                    synchronized (fragments) {
-                        if (i < fragments.size()) {
-                            Object fragment = fragments.get(i);
-                            int k = i - curSegment;
-                            if (fragment instanceof BulkData) {
-                                BulkData bulk = (BulkData) fragment;
-                                segPositions[k] = bulk.offset();
-                                segLength[k] = bulk.length();
-                            } else {
-                                byte[] byteFrag = (byte[]) fragment;
-                                segPositions[k] = beforePos;
-                                segLength[k] = byteFrag.length;
-                            }
-                            beforePos += segLength[k] & 0xFFFFFFFFl;
-                        }
-                    }
-                }
-                return new long[][] { segPositions, segLength };
+        if (curSegment == null || curSegment < 0) {
+            return null;
         }
-        return null;
+        ImageDescriptor desc = iis.getImageDescriptor();
+        List<Object> fragments = iis.getFragments();
+        Integer lastSegment = iis.getLastSegment();
+        if (!desc.isMultiframe() && lastSegment < fragments.size()) {
+            lastSegment = fragments.size();
+        }
+        long[] segPositions = new long[lastSegment - curSegment];
+        long[] segLength = new long[segPositions.length];
+        long beforePos = 0;
+
+        for (int i = curSegment; i < lastSegment; i++) {
+            synchronized (fragments) {
+                if (i < fragments.size()) {
+                    Object fragment = fragments.get(i);
+                    int k = i - curSegment;
+                    if (fragment instanceof BulkData) {
+                        BulkData bulk = (BulkData) fragment;
+                        segPositions[k] = bulk.offset();
+                        segLength[k] = bulk.length();
+                    } else {
+                        byte[] byteFrag = (byte[]) fragment;
+                        segPositions[k] = beforePos;
+                        segLength[k] = byteFrag.length;
+                    }
+                    beforePos += segLength[k] & 0xFFFFFFFFL;
+                }
+            }
+        }
+        return new long[][] { segPositions, segLength };
     }
 
     public long[] getSegPosition() {
@@ -199,20 +199,5 @@ public abstract class StreamSegment {
 
     public long[] getSegLength() {
         return segLength;
-    }
-
-    public static byte[] getByte(ByteArrayInputStream inputStream) {
-        if (inputStream != null) {
-            try {
-                Field fid = ByteArrayInputStream.class.getDeclaredField("buf");
-                if (fid != null) {
-                    fid.setAccessible(true);
-                    return (byte[]) fid.get(inputStream);
-                }
-            } catch (Exception e) {
-                LOGGER.error("Cannot get bytes from inputstream", e);
-            }
-        }
-        return null;
     }
 }
