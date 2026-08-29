@@ -1,5 +1,4 @@
 /*
- * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -34,36 +33,38 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * **** END LICENSE BLOCK *****
- *
  */
 
-package org.dcm4che3.opencv;
+package org.dcm4che3.io;
 
-import java.io.File;
+import org.dcm4che3.util.StringUtils;
 
-import org.dcm4che3.imageio.codec.ImageDescriptor;
+import javax.xml.XMLConstants;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
 
 /**
- * @author Nicolas Roduit
- * @since Mar 2018
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
+ * @since Jun 2026
  */
-class FileStreamSegment extends StreamSegment {
-
-    private final String filePath;
-
-    FileStreamSegment(File file, long[] startPos, long[] length, ImageDescriptor imageDescriptor) {
-        super(startPos, length, imageDescriptor);
-        this.filePath = file.getAbsolutePath();
+public class SAXTransformerFactoryHolder {
+    public static final SAXTransformerFactory factory;
+    static {
+        factory = (SAXTransformerFactory) TransformerFactory.newInstance();
+        try {
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, !"false".equalsIgnoreCase(
+                    StringUtils.getPropertyOrEnv(
+                            "javax.xml.featureSecureProcessing",
+                            "JAVAX_XML_FEATURE_SECURE_PROCESSING",
+                            null)));
+        } catch (TransformerConfigurationException e) {
+            throw new AssertionError("All implementations are required to support the XMLConstants.FEATURE_SECURE_PROCESSING feature", e);
+        }
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET,
+                StringUtils.getPropertyOrEnv( "javax.xml.accessExternalStylesheet",
+                        "JAVAX_XML_ACCESS_EXTERNAL_STYLESHEET",
+                        "file"));
     }
 
-    FileStreamSegment(ExtendSegmentedInputImageStream stream) {
-        super(stream.getSegmentPositions(), stream.getSegmentLengths(), stream.getImageDescriptor());
-        this.filePath = stream.getFile().getAbsolutePath();
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" label="PS3.6" version="5.0" xml:id="PS3.6">
     <title>PS3.6</title>
-    <subtitle>DICOM PS3.6 2026a - Data Dictionary</subtitle>
+    <subtitle>DICOM PS3.6 2026c - Data Dictionary</subtitle>
     <info>
         <author>
             <orgname>DICOM Standards Committee</orgname>
@@ -731,22 +731,22 @@
                 </tr>
                 <tr valign="top">
                     <td align="center" colspan="1" rowspan="1">
-                        <para>(0008,001D)</para>
+                        <para xml:id="para_83cb8ee6-6d1c-4290-b7f2-04987f90a625">(0008,001D)</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>Sensitive Content Code Sequence</para>
+                        <para xml:id="para_bf4e561d-ab0f-4bdc-aa1b-752212c48b28">Sensitive Content Code Sequence</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>Sensitive​Content​Code​Sequence</para>
+                        <para xml:id="para_23333556-aecf-4b77-9845-c09ff4cdafd8">Sensitive​Content​Code​Sequence</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>SQ</para>
+                        <para xml:id="para_60eb114a-ee01-4f05-8258-a41e6d4e68a1">SQ</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>1</para>
+                        <para xml:id="para_35c12017-0e69-4aed-9061-0439c7f068ae">1</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_d1ec381b-cd82-4352-9bf9-bdb967ffb3df"/>
                     </td>
                 </tr>
                 <tr valign="top">
@@ -30486,7 +30486,66 @@
                         <para xml:id="para_6d01003b-42a5-4fab-bc75-45fc6e90039f"/>
                     </td>
                 </tr>
-
+                <tr valign="top">
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_f29377e4-c2bb-4e37-a2b7-c73c3523d806">(0018,9390)</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_02813e80-5721-422b-bb42-515184778e13">Metal Artifact Reduction Sequence</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_a0a72bdc-b7bd-46a8-adc2-e79dea74e4f8">Metal​Artifact​Reduction​Sequence</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_770fb413-84b9-4084-bf83-ed402c54f059">SQ</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_157c7d6b-eae4-480a-a6ea-4bfe726ad06a">1</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_f9aa7469-5616-4850-b31e-7c200d266166"/>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_1597be66-3683-4d2e-8f28-3acceec8cff2">(0018,9391)</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_03914050-02f4-4a47-aebe-c5765e4349fa">Metal Artifact Reduction Applied</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_05b604b7-bf9c-4405-991a-f91ee0bc98da">Metal​Artifact​Reduction​Applied</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_9b6aa507-a300-487e-b9a2-c82a41fbfcc6">CS</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_d36c4a0e-1220-40db-a14d-692c35cb0e70">1</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_c57d7bbb-707b-4c60-af7b-aaab876b3e1b"/>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_3ea6c456-2616-402f-adf1-26d102451437">(0018,9392)</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_252e5821-8bba-43d3-a163-18ba770417c9">Metal Artifact Reduction Algorithm Identification Sequence</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_2d709b58-9f98-4773-9c1e-31596bbc1e99">Metal​Artifact​Reduction​Algorithm​Identification​Sequence</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_c0d5364b-8fc5-4878-8254-8f66670e3f07">SQ</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_3eb5fffc-d1e3-4aec-a1a1-4650b7b89e33">1</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para xml:id="para_e576c2db-5a7b-4f14-a57d-2646085aa8ea"/>
+                    </td>
+                </tr>
                 <tr valign="top">
                     <td align="center" colspan="1" rowspan="1">
                         <para xml:id="para_0f006688-f10e-4716-9574-8736ac27a422">(0018,9401)</para>
@@ -60647,6 +60706,26 @@
                 </tr>
                 <tr valign="top">
                     <td align="center" colspan="1" rowspan="1">
+                        <para>(0040,E012)</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>Display URI</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>Display​URI</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para>UR</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para>1</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para/>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="center" colspan="1" rowspan="1">
                         <para xml:id="para_97f3c16e-3f6d-4c5b-ab30-4e1d0b8652d0">(0040,E020)</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
@@ -85606,102 +85685,102 @@
                 </tr>
                 <tr valign="top">
                     <td align="center" colspan="1" rowspan="1">
-                        <para>(3004,0020)</para>
+                        <para xml:id="para_0ac1395b-692d-4a8d-a92e-5c61e06bc11b">(3004,0020)</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>Dose Unit Code Sequence</para>
+                        <para xml:id="para_2cca8b2b-a690-4c21-b017-ee7246f7cdec">Dose Unit Code Sequence</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>Dose​Unit​Code​Sequence</para>
+                        <para xml:id="para_984af09f-8fc0-4347-a326-b7d85c495a32">Dose​Unit​Code​Sequence</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>SQ</para>
+                        <para xml:id="para_4140d874-11c0-444e-866c-a1b24a1e5bac">SQ</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>1</para>
+                        <para xml:id="para_0de2c547-19fb-48bd-b513-83c718f4021c">1</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_25126166-2144-44d7-add7-f8627d86ba99"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="center" colspan="1" rowspan="1">
-                        <para>(3004,0021)</para>
+                        <para xml:id="para_70ca0d8a-a11e-4f4d-b296-4fbc8ae16176">(3004,0021)</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>RT Dose Interpreted Type Code Sequence</para>
+                        <para xml:id="para_c86dba97-4cf3-4d41-b5a6-07cea4f2439b">RT Dose Interpreted Type Code Sequence</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>RT​Dose​Interpreted​Type​Code​Sequence</para>
+                        <para xml:id="para_529fcce8-bf08-4ff2-8483-32f182048030">RT​Dose​Interpreted​Type​Code​Sequence</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>SQ</para>
+                        <para xml:id="para_3d42e399-80b9-4458-8855-9c74bb3c4d24">SQ</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>1</para>
+                        <para xml:id="para_cc1611cb-7821-48dc-b8c5-026dff0b28d2">1</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_bcf0a829-da5f-46df-b7f1-16d31adab1cd"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="center" colspan="1" rowspan="1">
-                        <para>(3004,0022)</para>
+                        <para xml:id="para_373ced63-f3a4-411d-8ce4-51e27f1155bb">(3004,0022)</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>RT Dose Interpreted Type Code Modifier Sequence</para>
+                        <para xml:id="para_ab112771-6327-4252-8805-bf63fc6cdb32">RT Dose Interpreted Type Code Modifier Sequence</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>RT​Dose​Interpreted​Type​Code​Modifier​Sequence</para>
+                        <para xml:id="para_6241fd1e-3f83-459f-9bc9-55ed483c1d70">RT​Dose​Interpreted​Type​Code​Modifier​Sequence</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>SQ</para>
+                        <para xml:id="para_dc9d43da-59b8-4ec2-816b-c0da172d5e71">SQ</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>1</para>
+                        <para xml:id="para_b70e23bd-53b3-456f-aa3e-d20373601c3d">1</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_1d73bedf-e957-4d00-a984-3938d20adce7"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="center" colspan="1" rowspan="1">
-                        <para>(3004,0023)</para>
+                        <para xml:id="para_2dd664c8-54a9-453b-9436-dc384ef20008">(3004,0023)</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>Dose Radiobiological Interpretation Sequence</para>
+                        <para xml:id="para_0c3bad67-4f20-485f-8312-785c330acb7a">Dose Radiobiological Interpretation Sequence</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>Dose​Radiobiological​Interpretation​Sequence</para>
+                        <para xml:id="para_808100ae-172a-4ac8-b145-1733513e25d0">Dose​Radiobiological​Interpretation​Sequence</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>SQ</para>
+                        <para xml:id="para_18d212b8-2ee4-4297-8675-924bacb3863c">SQ</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>1</para>
+                        <para xml:id="para_a290efb8-383f-4d87-a40b-781f50360170">1</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_3d6b6638-52cb-46ca-9b85-1a64edf4c100"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="center" colspan="1" rowspan="1">
-                        <para>(3004,0024)</para>
+                        <para xml:id="para_b57bbd67-fcff-448a-8a75-0bf20c90f35f">(3004,0024)</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>RT Dose Intent Code Sequence</para>
+                        <para xml:id="para_26f92e19-0f81-47f8-99f0-da86a06a8d73">RT Dose Intent Code Sequence</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>RT​Dose​Intent​Code​Sequence</para>
+                        <para xml:id="para_e7c7e660-4c41-4a9a-9f3d-b98e778b9882">RT​Dose​Intent​Code​Sequence</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>SQ</para>
+                        <para xml:id="para_b9dcdd10-511b-4609-884e-0f6d3849fbae">SQ</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para>1</para>
+                        <para xml:id="para_63b9ba37-db4f-49f4-ab3c-0b7666768d2b">1</para>
                     </td>
                     <td align="center" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_7a858749-552b-4780-a51d-c11711bf235b"/>
                     </td>
                 </tr>
                 <tr valign="top">
@@ -115540,6 +115619,63 @@
                     </td>
                     <td align="center" colspan="1" rowspan="1">
                         <para xml:id="para_fc8f0864-2f71-493a-9857-3cbe4f03ccb4">
+                            <olink targetdoc="PS3.4" targetptr="PS3.4" xrefstyle="select: labelnumber"/>
+                        </para>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>1.2.840.10008.​5.​1.​4.​1.​1.​2.​3</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>CT Image Storage - For Processing</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>CT​Image​Storage​For​Processing</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>SOP Class</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para>
+                            <olink targetdoc="PS3.4" targetptr="PS3.4" xrefstyle="select: labelnumber"/>
+                        </para>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>1.2.840.10008.​5.​1.​4.​1.​1.​2.​4</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>Enhanced CT Image Storage - For Processing</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>Enhanced​CT​Image​Storage​For​Processing</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>SOP Class</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para>
+                            <olink targetdoc="PS3.4" targetptr="PS3.4" xrefstyle="select: labelnumber"/>
+                        </para>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>1.2.840.10008.​5.​1.​4.​1.​1.​2.​5</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>Legacy Converted Enhanced CT Image Storage - For Processing</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>Legacy​Converted​Enhanced​CT​Image​Storage​For​Processing</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>SOP Class</para>
+                    </td>
+                    <td align="center" colspan="1" rowspan="1">
+                        <para>
                             <olink targetdoc="PS3.4" targetptr="PS3.4" xrefstyle="select: labelnumber"/>
                         </para>
                     </td>
@@ -148625,142 +148761,232 @@
                 </tr>
                 <tr valign="top">
                     <td align="left" colspan="1" rowspan="1">
-                        <para>1.2.840.10008.6.1.1560</para>
+                        <para xml:id="para_2dc3b35b-4ed5-4c64-9132-28a850ae7f3e">1.2.840.10008.6.1.1560</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_07992440-d1c8-4ecf-8dba-b1ad157aa543">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_900" xrefstyle="select: labelnumber"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_f1bf03cd-b133-49d8-bc20-19ac9145c914">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_900" xrefstyle="select: title"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_ab4de264-c64a-4ef1-af07-17c4f8fddd6e"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="left" colspan="1" rowspan="1">
-                        <para>1.2.840.10008.6.1.1561</para>
+                        <para xml:id="para_7fd27d7d-eede-4c96-8c41-0c5dd89564c8">1.2.840.10008.6.1.1561</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_05f8e165-6145-4ae7-b232-e5ecb2e82641">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_901" xrefstyle="select: labelnumber"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_a70a6fbe-e4f8-4b34-9d86-d56c18e86200">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_901" xrefstyle="select: title"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_8d4cf696-0a25-4f6a-b401-a68fa0caa809"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="left" colspan="1" rowspan="1">
-                        <para>1.2.840.10008.6.1.1562</para>
+                        <para xml:id="para_adf5d471-4f2f-4e1d-9872-30a68c24f8f6">1.2.840.10008.6.1.1562</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_58a91171-fa21-4ec6-acbe-a03a33aedae9">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_406" xrefstyle="select: labelnumber"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_17660076-7cea-4d58-bcac-0e418c4c879e">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_406" xrefstyle="select: title"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_164ae1f5-74bd-40a6-8d1c-ea630188a458"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="left" colspan="1" rowspan="1">
-                        <para>1.2.840.10008.6.1.1563</para>
+                        <para xml:id="para_de28195d-d354-4137-94c4-2b29bf759906">1.2.840.10008.6.1.1563</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_b354df5e-4aef-4d6a-b416-993bbba72209">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_10035" xrefstyle="select: labelnumber"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_0ee05558-97c0-40bc-ba3c-c13332b865a2">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_10035" xrefstyle="select: title"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_adaa28c1-266e-443f-b37c-0ef791de5c3b"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="left" colspan="1" rowspan="1">
-                        <para>1.2.840.10008.6.1.1564</para>
+                        <para xml:id="para_20369f4c-3182-4f13-8e28-838e013cf69e">1.2.840.10008.6.1.1564</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_afa47421-f0e8-46a4-91aa-38ecd9f3e268">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_9586" xrefstyle="select: labelnumber"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_2be78709-05c8-4b2c-814f-46a6d304e08a">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_9586" xrefstyle="select: title"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_3416513e-90e1-4b70-9939-0f531741dde8"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="left" colspan="1" rowspan="1">
-                        <para>1.2.840.10008.6.1.1565</para>
+                        <para xml:id="para_8abdf606-716a-4b25-9bab-dcafb9d0f1e1">1.2.840.10008.6.1.1565</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_9fe1e76f-6a77-4a88-b75c-c6564743d729">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_9587" xrefstyle="select: labelnumber"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_22d048dc-a347-4503-8493-e72f7e636652">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_9587" xrefstyle="select: title"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_7f6b1dfe-6f89-401f-9ee8-6a409fd0e02e"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="left" colspan="1" rowspan="1">
-                        <para>1.2.840.10008.6.1.1566</para>
+                        <para xml:id="para_7f713442-aba8-48ad-9b49-21ebbd63a615">1.2.840.10008.6.1.1566</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_94c058d5-17ae-4b9f-84ec-65bbc45d2336">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_9588" xrefstyle="select: labelnumber"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_5b788bd6-0ae1-490d-beb9-f6a6118bcd49">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_9588" xrefstyle="select: title"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para/>
+                        <para xml:id="para_c9992fc5-a802-429b-a124-f3f7de01127c"/>
                     </td>
                 </tr>
                 <tr valign="top">
                     <td align="left" colspan="1" rowspan="1">
-                        <para>1.2.840.10008.6.1.1567</para>
+                        <para xml:id="para_d9b1ca2d-e9b0-4350-a683-3bc5badabc47">1.2.840.10008.6.1.1567</para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_74b13114-06b9-4873-b308-1d04d23a2828">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_9589" xrefstyle="select: labelnumber"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
-                        <para>
+                        <para xml:id="para_651089f2-ac35-4356-ba30-4b5be923a3af">
                             <olink targetdoc="PS3.16" targetptr="sect_CID_9589" xrefstyle="select: title"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_0698724f-1bde-41a4-9682-4437e821ea98"/>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_548636c7-0ebb-420e-80f1-5ad035e7b3cb">1.2.840.10008.6.1.1568</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_32c32762-9b9c-4fda-a953-5b6499d4e3ef">
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_7164" xrefstyle="select: labelnumber"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_7a3af5da-a32b-4f02-ac08-0aaed513fa9e">
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_7164" xrefstyle="select: title"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_8affe0c1-2b9e-4d36-a2e9-33c89508cd8b"/>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_355a25c0-fa81-44b6-8434-d7d9d28bf08c">1.2.840.10008.6.1.1569</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_4521c1a4-885b-4cd0-a948-025e975b6b16">
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_12027" xrefstyle="select: labelnumber"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_233f3b67-9db8-4ce4-9310-0e4fd7ff291c">
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_12027" xrefstyle="select: title"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_f5481aba-9fda-4366-b3b0-e7d37dc1754c"/>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_1a679cf5-2933-43e7-849b-cb862bdecd8c">1.2.840.10008.6.1.1570</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_56253117-57b0-4d3f-ade8-41c9915ec6ad">
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_12028" xrefstyle="select: labelnumber"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_fee1da56-16f5-4608-ab9b-21a9ef379f82">
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_12028" xrefstyle="select: title"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_b5b0becf-d9ee-4aaf-a604-303ee7315c9b"/>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_d636c498-0fc1-40c5-b851-bae29c66ee64">1.2.840.10008.6.1.1571</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_b67c0f23-c8e9-40c1-b9ec-f605dc4ade1b">
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_10036" xrefstyle="select: labelnumber"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_c5cd2e23-6e1c-4914-aae8-ef86d5961672">
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_10036" xrefstyle="select: title"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para xml:id="para_fb4e2f17-d778-4845-85eb-b57309e7b254"/>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>1.2.840.10008.6.1.1572</para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_10037" xrefstyle="select: labelnumber"/>
+                        </para>
+                    </td>
+                    <td align="left" colspan="1" rowspan="1">
+                        <para>
+                            <olink targetdoc="PS3.16" targetptr="sect_CID_10037" xrefstyle="select: title"/>
                         </para>
                     </td>
                     <td align="left" colspan="1" rowspan="1">
